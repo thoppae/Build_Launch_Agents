@@ -1,0 +1,88 @@
+Tech Stack:
+
+Backend: Python
+Frontend: Streamlit
+AI/ML: Google Generative AI (Gemini 1.5 Flash, Embedding-001), LangChain
+Vector Database: FAISS
+
+Libraries Used:
+
+os: For accessing environment variables (API key).
+streamlit: For building the web application UI.
+csv: For reading and processing CSV files (player data and rules).
+dotenv: For loading environment variables from a .env file.
+langchain: Core framework for building the LLM application.
+RetrievalQA: For building the question answering chain.
+PromptTemplate: For defining the prompt structure.
+Document: For representing text documents in LangChain.
+langchain_core.documents: Contains the Document class.
+langchain_community.vectorstores.FAISS: For creating and using the FAISS vector database.
+langchain_google_genai: For integrating Google's Generative AI models with LangChain.
+ChatGoogleGenerativeAI: For using the Gemini chat model.
+GoogleGenerativeAIEmbeddings: For generating embeddings using Google's embedding model.
+nest_asyncio: To patch asyncio for compatibility issues in environments like Colab or Streamlit.
+
+Code Details:
+
+Setup and Configuration:
+Loads environment variables using dotenv.
+Retrieves the Google API key.
+Configures the Streamlit page title and layout.
+Includes a check for the API key.
+Applies nest_asyncio.apply() to handle potential asyncio event loop issues.
+
+Model Initialization:
+Uses @st.cache_resource to cache the initialization of the Gemini 1.5 Flash LLM and the Embedding-001 model.
+
+Data Cleaning Helper:
+A helper function _clean_csv_dict is defined to clean keys of dictionaries read from CSV, removing leading/trailing whitespace and quotes.
+
+Data Loading and Vector Database Creation:
+Uses @st.cache_resource to cache the creation of the vector database.
+Reads player data from data.csv and rules from rules.csv.
+For player data, it creates a main summary document and also creates additional, focused "expert" documents for specific attributes like "Committee" and "Injury" to improve retrieval.
+Creates documents for the rules.
+Combines all documents and creates a FAISS vector database using the Google Generative AI embeddings.
+System Creation (Q&A Chain and Team Formation Helpers):
+get_qa_chain: Builds a RetrievalQA chain using the FAISS vector database and the Gemini LLM. It uses a specific prompt template for answering questions based on the provided context.
+get_full_context_from_files: Reads the raw content of the rules and player data CSVs and formats them into strings for use in the advanced team formation prompt.
+
+Streamlit User Interface:
+
+Factual Question Section:
+Provides a text input for users to ask questions.
+A "Ask" button triggers the qa_chain.invoke function to get an answer from the RAG system.
+Displays the answer and allows users to expand a section to view the source documents used.
+
+Team Formation Section:
+Provides a number input for the user to specify how many teams to form.
+A "Generate Teams" button triggers the advanced team formation process.
+It retrieves the full context from the CSV files.
+Constructs a detailed prompt for the LLM, instructing it to act as a cricket expert and form teams based on the provided rules and player data.
+Invokes the LLM with this complex prompt and displays the generated response (which should include the reasoning and the final teams).
+Error Handling: Basic try...except blocks are included to catch potential errors during API calls or data processing.
+
+Next Steps (based on the code's current structure and common use cases):
+
+Provide data.csv and rules.csv: The code requires these two CSV files to run. Make sure they are accessible in the environment where the code is being executed.
+
+Set up the .env file: Create a .env file in the same directory as the code and add your Google API key in the format GOOGLE_API_KEY=your_api_key_here.
+
+Run the Streamlit app: Execute the Python script to start the Streamlit web server. You can typically do this from your terminal using streamlit run your_script_name.py.
+
+Interact with the UI: Open the provided URL in your web browser to interact with the Q&A bot and the team formation feature.
+
+Final Steps (for a production-ready application):
+
+Refine Prompts: Continuously test and refine the prompts for both the Q&A and team formation tasks to improve accuracy and the quality of the generated responses.
+
+Improve Data Loading/Preprocessing: Implement more robust error handling and data validation for the CSV loading process. Consider adding more sophisticated data cleaning or feature engineering if needed.
+
+Scalability and Performance: For larger datasets, consider using more scalable vector database solutions and optimizing the retrieval process.
+
+User Experience: Enhance the Streamlit UI with more clear instructions, progress indicators, and potentially more interactive elements.
+Deployment: Deploy the Streamlit application to a hosting platform (e.g., Streamlit Cloud, Heroku, cloud platforms) to make it accessible to users.
+
+Monitoring and Logging: Implement logging to track usage, errors, and model performance.
+
+Security: Ensure secure handling of API keys and any sensitive data.
